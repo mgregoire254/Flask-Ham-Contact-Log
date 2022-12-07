@@ -8,11 +8,43 @@
 {% endblock %}
 
 {% block content %}
-  {% for contact in contacts %}
-    pass
-    <!--add table showing entries-->
-    {% if not loop.last %}
-      <hr>
-    {% endif %}
-  {% endfor %}
+<table class="table table-bordered table-responsive table-sm table-hover">
+    <thead class="table-secondary">
+        <tr>
+            <th scope="col">Date</th>
+            <th scope="col">Callsign</th>
+            <th scope="col">frequency</th>
+            <th scope="col">mode</th>
+            <th scope="col">power</th>
+            <th scope="col">Your Location</th>
+            <th scope="col">Their Location</th>
+            <th scope="col">Your rst</th>
+            <th scope="col">Their rst</th>
+            <th scope="col">comments</th>
+        </tr>
+    </thead>
+    {% for thing in things %}
+    <tbody>
+        <tr>
+            <td>{{ contact.created }}</td>
+            <td>{{ contact.callsign }}</td>
+            <td>{{ contact.frequency }}</td>
+            <td>{{ contact.mode }}</td>
+            <td>{{ contact.power }}</td>
+            <td>{{ contact.self_location }}</td>
+            <td>{{ contact.contact_location }}</td>
+            <td>{{ contact.self_rst }}</td>
+            <td>{{ contact.contact_rst }}</td>
+            <td>{{ contact.comments }}</td>
+            
+            <td>
+                <a href="/delete/{{contact.id}}">Delete</a>
+                <br>
+                <a href="/update/{{contact.id}}">Update</a>
+
+            </td>
+        </tr>
+    </tbody>
+    {% endfor %}    
+</table>
 {% endblock %}
