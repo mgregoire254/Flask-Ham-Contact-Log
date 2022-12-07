@@ -23,24 +23,24 @@
             <th scope="col">comments</th>
         </tr>
     </thead>
-    {% for thing in things %}
+    {% for contact in contacts %}
     <tbody>
         <tr>
-            <td>{{ contact.created }}</td>
-            <td>{{ contact.callsign }}</td>
-            <td>{{ contact.frequency }}</td>
-            <td>{{ contact.mode }}</td>
-            <td>{{ contact.power }}</td>
-            <td>{{ contact.self_location }}</td>
-            <td>{{ contact.contact_location }}</td>
-            <td>{{ contact.self_rst }}</td>
-            <td>{{ contact.contact_rst }}</td>
-            <td>{{ contact.comments }}</td>
+            <td>{{ contact['created'].strftime('%Y-%m-%d') }}</td>
+            <td>{{ contact['callsign'] }}</td>
+            <td>{{ contact['frequency'] }}</td>
+            <td>{{ contact['mode'] }}</td>
+            <td>{{ contact['power'] }}</td>
+            <td>{{ contact['self_location'] }}</td>
+            <td>{{ contact['contact_location'] }}</td>
+            <td>{{ contact['self_rst'] }}</td>
+            <td>{{ contact['contact_rst'] }}</td>
+            <td>{{ contact['comments'] }}</td>
             
             <td>
-                <a href="/delete/{{contact.id}}">Delete</a>
+                <a href="{{ url_for('log.delete', id=contact['id']) }}" method="post">Delete</a>
                 <br>
-                <a href="/update/{{contact.id}}">Update</a>
+                <a href="{{ url_for('log.update', id=contact['id']) }}">Update</a>
 
             </td>
         </tr>

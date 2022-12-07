@@ -49,7 +49,7 @@ def create():
             db.execute(
                 'INSERT INTO contacts (callsign, comments, author_id, frequency, mode, power, self_location, contact_location, self_rst, contact_rst)'
                 ' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-                (callsign, comments, g.user['id'])
+                (callsign, comments, g.user['id'], frequency, mode, power, self_location, contact_location, self_rst, contact_rst)
             )
             db.commit()
             return redirect(url_for('log.index'))
