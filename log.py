@@ -10,6 +10,7 @@ bp = Blueprint('log', __name__)
 
 #index view
 @bp.route('/')
+@login_required
 def index():
     db = get_db()
     contacts = db.execute(
