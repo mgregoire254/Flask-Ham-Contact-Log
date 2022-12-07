@@ -38,7 +38,7 @@
             <td>{{ contact['comments'] }}</td>
             
             <td>
-                <a href="{{ url_for('log.delete', id=contact['id']) }}" method="post">Delete</a>
+                <a href="{{ url_for('log.delete', id=contact['id']) }}">Delete</a>
                 <br>
                 <a href="{{ url_for('log.update', id=contact['id']) }}">Update</a>
 
