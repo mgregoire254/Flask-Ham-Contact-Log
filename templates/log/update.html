@@ -1,9 +1,35 @@
 {% extends 'base.html' %}
 
 {% block header %}
-  <h1>{% block title %}Edit "{{ contact['callsign'] }}"{% endblock %}</h1>
+  <h1>{% block title %}Edit log entry for "{{ contact['callsign'] }}" on "{{ contact['created'].strftime('%Y-%m-%d') }}" {% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
   <!--add form here-->>
+  <form method="post">
+    <label for="callsign">Callsign</label>
+    <input name="callsign" id="callsign"
+      value="{{ request.form['callsign'] or contact['callsign'] }}" required>
+    <label for="comments">comments</label>
+    <textarea name="comments" id="comments">{{ request.form['comments'] or contact['comments'] }}</textarea>
+    <label for="frequency">frequency</label>
+    <input name="frequency" id="frequency" value="{{ request.form['frequency'] }}">
+    <label for="mode">mode</label>
+    <input name="mode" id="mode" value="{{ request.form['mode'] }}">
+    <label for="power">power</label>
+    <input name="power" id="power" value="{{ request.form['power'] }}">
+    <label for="self_location">your location</label>
+    <input name="self_location" id="self_location" value="{{ request.form['self_location'] }}">
+    <label for="contact_location">their location</label>
+    <input name="contact_location" id="contact_location" value="{{ request.form['contact_location'] }}">
+    <label for="self_rst">your rst</label>
+    <input name="self_rst" id="self_rst" value="{{ request.form['self_rst'] }}">
+    <label for="contact_rst">their rst</label>
+    <input name="contact_rst" id="contact_rst" value="{{ request.form['contact_rst'] }}">
+    <input type="submit" value="Save">
+  </form>
+  <hr>
+  <form action="{{ url_for('log.delete', id=contact['id']) }}" method="post">
+    <input class="danger" type="submit" value="Delete" onclick="return confirm('Are you sure?');">
+  </form>
 {% endblock %}
