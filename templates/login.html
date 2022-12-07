@@ -5,11 +5,24 @@
 {% endblock %}
 
 {% block content %}
-  <form method="post">
-    <label for="username">Username</label>
-    <input name="username" id="username" required>
-    <label for="password">Password</label>
-    <input type="password" name="password" id="password" required>
-    <input type="submit" value="Log In">
-  </form>
+<body class="text-center bg-light text-dark">
+    <main class="form-signin w-25 m-auto container">
+        <form method="post">
+            <h1 class="h3 mb-3 fw-normal">Please sign in</h1>
+            <div class="form-floating">
+                <label for="username">Username</label>
+                <input name="username" class="form-control" id="floatingInput" placeholder="username" required>
+            </div>
+            <div class="form-floating">
+                <label for="password">Password</label>
+                <input type="password" class="form-control" name="password" id="floatingPassword" placeholder="Password" required>
+            </div>
+            <hr>
+           
+            <button class="w-100 btn btn-lg btn-primary" type="submit">Sign in</button>
+            <p class="mt-5 mb-3 text-muted">© Mike Gregoire 2022 - Get the source code on my <a href="https://github.com/mgregoire254/Flask-Ham-Contact-Log">Github</a></p>
+          </form>
+    </main>
+</body>  
+
 {% endblock %}
