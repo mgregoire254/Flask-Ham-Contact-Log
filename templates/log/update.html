@@ -7,24 +7,23 @@
 {% block content %}
   <form method="post">
     <label for="callsign">Callsign</label>
-    <input name="callsign" id="callsign"
-      value="{{ request.form['callsign'] or contact['callsign'] }}" required>
+    <input name="callsign" id="callsign"value="{{ request.form['callsign'] or contact['callsign'] }}" required>
     <label for="comments">comments</label>
-    <textarea name="comments" id="comments">{{ request.form['comments'] or contact['comments'] }}</textarea>
+    <textarea name="comments" id="comments" value="{{ request.form['comments'] or contact['comments'] }}"></textarea>
     <label for="frequency">frequency</label>
-    <input name="frequency" id="frequency" value="{{ request.form['frequency'] }}">
+    <input name="frequency" id="frequency" value="{{ request.form['frequency'] or contact['frequency'] }}">
     <label for="mode">mode</label>
-    <input name="mode" id="mode" value="{{ request.form['mode'] }}">
+    <input name="mode" id="mode" value="{{ request.form['mode'] or contact['mode'] }}">
     <label for="power">power</label>
-    <input name="power" id="power" value="{{ request.form['power'] }}">
+    <input name="power" id="power" value="{{ request.form['power'] or contact['power'] }}">
     <label for="self_location">your location</label>
-    <input name="self_location" id="self_location" value="{{ request.form['self_location'] }}">
+    <input name="self_location" id="self_location" value="{{ request.form['self_location'] or contact['self_location'] }}">
     <label for="contact_location">their location</label>
-    <input name="contact_location" id="contact_location" value="{{ request.form['contact_location'] }}">
+    <input name="contact_location" id="contact_location" value="{{ request.form['contact_location'] or contact['contact_location'] }}">
     <label for="self_rst">your rst</label>
-    <input name="self_rst" id="self_rst" value="{{ request.form['self_rst'] }}">
+    <input name="self_rst" id="self_rst" value="{{ request.form['self_rst'] or contact['self_rst'] }}">
     <label for="contact_rst">their rst</label>
-    <input name="contact_rst" id="contact_rst" value="{{ request.form['contact_rst'] }}">
+    <input name="contact_rst" id="contact_rst" value="{{ request.form['contact_rst'] or contact['contact_rst'] }}">
     <input type="submit" value="Save">
   </form>
   <hr>
