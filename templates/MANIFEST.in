@@ -1,0 +1,4 @@
+include Contact/schema.sql
+graft Contact/static
+graft Contact/templates
+global-exclude *.pyc
