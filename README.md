@@ -1,6 +1,6 @@
 # HamPy :radio: - Ham Radio Contact Tracker
 
-![HamPy Banner](path_to_your_banner_image.png)
+![HamPy Banner](static/images/hampy_banner.png)
 
 HamPy is a Flask web application that provides an intuitive and efficient way to track and log your ham radio contacts. Developed with care by
 **Michael Gregoire**, this tool is for ham radio enthusiasts looking to organize their contacts.
