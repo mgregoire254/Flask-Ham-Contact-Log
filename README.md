@@ -49,7 +49,7 @@ While this is currently a personal project, I may open it up to contributions in
 
 ## License
 
-[Your License Here]
+[GNU GENERAL PUBLIC LICENSE]
 
 ---
 
