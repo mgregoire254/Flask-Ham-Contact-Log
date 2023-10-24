@@ -24,6 +24,7 @@ We're always looking to improve HamPy and bring more features to our users. Here
 - [ ] Search functionality to find contacts quickly.
 - [ ] Visual styling.
 - [ ] Integration with mapping tools to visually plot contacts.
+- [ ] Multiple Users.
 - [ ] And much more!
 
 > Do you have a feature in mind? Feel free to open an issue, and we'll look into it!
