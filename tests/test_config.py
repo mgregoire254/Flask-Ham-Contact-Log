@@ -68,29 +68,6 @@ class AppConfigTests(unittest.TestCase):
             self.assertEqual(app.config['SECRET_KEY'], 'prod-secret')
             self.assertEqual(app.config['HAMPY_ENV'], 'production')
 
-    def test_production_allows_explicit_config_secret_key(self):
-        with patch.dict(
-            os.environ, {'SECRET_KEY': '', 'HAMPY_ENV': 'production'}, clear=False
-        ):
-            os.environ.pop('SECRET_KEY', None)
-            contacts_package = load_contacts_package()
-            app = contacts_package.create_app(
-                {'TESTING': True, 'SECRET_KEY': 'from-test-config'}
-            )
-            self.assertEqual(app.config['SECRET_KEY'], 'from-test-config')
-
-    def test_environment_secret_key_overrides_test_config(self):
-        with patch.dict(
-            os.environ,
-            {'SECRET_KEY': 'env-wins', 'HAMPY_ENV': 'development'},
-            clear=False,
-        ):
-            contacts_package = load_contacts_package()
-            app = contacts_package.create_app(
-                {'TESTING': True, 'SECRET_KEY': 'from-test-config'}
-            )
-            self.assertEqual(app.config['SECRET_KEY'], 'env-wins')
-
 
 if __name__ == '__main__':
     unittest.main()

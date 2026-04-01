@@ -48,7 +48,7 @@ HamPy uses environment variables for runtime configuration:
 
 - `SECRET_KEY`  
   - **Development:** optional. If omitted, HamPy uses a local-only fallback key (`dev-insecure-change-me`).
-  - **Production (`HAMPY_ENV=production`): required.** Startup fails if `SECRET_KEY` is not explicitly configured.
+  - **Production (`HAMPY_ENV=production`): required.** Startup fails if `SECRET_KEY` is not set.
 - `HAMPY_ENV`  
   - Optional environment selector (`development` by default).
   - Set to `production` to enforce production safety checks.
@@ -71,8 +71,8 @@ export SECRET_KEY="strong-random-secret-key"
 Initialize the database and run the app:
 
 ```bash
-flask --app '__init__:create_app' init-db
-flask --app '__init__:create_app' run --debug
+flask --app Contacts init-db
+flask --app Contacts run --debug
 ```
 
 ---
