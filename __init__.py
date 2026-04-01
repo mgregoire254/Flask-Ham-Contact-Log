@@ -3,6 +3,11 @@ import os
 from flask import Flask
 
 
+_PRODUCTION_SECRET_KEY_ERROR = (
+    'SECRET_KEY environment variable is required when HAMPY_ENV=production.'
+)
+
+
 def _get_environment():
     return os.environ.get('HAMPY_ENV', os.environ.get('FLASK_ENV', 'development')).lower()
 
@@ -14,9 +19,7 @@ def _get_secret_key(environment):
         return configured_secret
 
     if environment == 'production':
-        raise RuntimeError(
-            'SECRET_KEY environment variable is required when HAMPY_ENV=production.'
-        )
+        raise RuntimeError(_PRODUCTION_SECRET_KEY_ERROR)
 
     return 'dev-insecure-change-me'
 
@@ -27,9 +30,7 @@ def _validate_production_secret_key(app):
 
     secret_key = app.config.get('SECRET_KEY')
     if not secret_key or secret_key == 'dev-insecure-change-me':
-        raise RuntimeError(
-            'SECRET_KEY environment variable is required when HAMPY_ENV=production.'
-        )
+        raise RuntimeError(_PRODUCTION_SECRET_KEY_ERROR)
 
 
 def create_app(test_config=None):
