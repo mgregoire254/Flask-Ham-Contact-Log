@@ -2,13 +2,33 @@ import os
 
 from flask import Flask
 
+
+def _get_environment():
+    return os.environ.get('HAMPY_ENV', os.environ.get('FLASK_ENV', 'development')).lower()
+
+
+def _get_secret_key(environment):
+    configured_secret = os.environ.get('SECRET_KEY')
+
+    if configured_secret:
+        return configured_secret
+
+    if environment == 'production':
+        raise RuntimeError(
+            'SECRET_KEY environment variable is required when HAMPY_ENV=production.'
+        )
+
+    return 'dev-insecure-change-me'
+
+
 def create_app(test_config=None):
     #create and configure app
     app = Flask(__name__, instance_relative_config=True)
+    environment = _get_environment()
     app.config.from_mapping(
-        #DONT FORGET TO CHANGE BEFORE PUSHING TO PRODUCTION
-        SECRET_KEY='os.environ(secret_key)',
+        SECRET_KEY=_get_secret_key(environment),
         DATABASE=os.path.join(app.instance_path, 'contacts.sqlite'),
+        HAMPY_ENV=environment,
     )
 
     if test_config is None:
@@ -42,4 +62,3 @@ def create_app(test_config=None):
 
 
     return app    
-

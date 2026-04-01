@@ -32,10 +32,48 @@ We're always looking to improve HamPy and bring more features to our users. Here
 ## Documentation :book:
 
 ### Installation
-> [Instructions Forthcoming]
+1. Create and activate a virtual environment.
+   ```bash
+   python -m venv .venv
+   source .venv/bin/activate
+   ```
+2. Install project dependencies.
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+### Configuration
+
+HamPy uses environment variables for runtime configuration:
+
+- `SECRET_KEY`  
+  - **Development:** optional. If omitted, HamPy uses a local-only fallback key (`dev-insecure-change-me`).
+  - **Production (`HAMPY_ENV=production`): required.** Startup fails if `SECRET_KEY` is not set.
+- `HAMPY_ENV`  
+  - Optional environment selector (`development` by default).
+  - Set to `production` to enforce production safety checks.
+
+Example development configuration:
+
+```bash
+export HAMPY_ENV=development
+export SECRET_KEY="replace-with-a-local-dev-secret"
+```
+
+Example production configuration:
+
+```bash
+export HAMPY_ENV=production
+export SECRET_KEY="strong-random-secret-key"
+```
 
 ### Usage
-> [Instructions Forthcoming]
+Initialize the database and run the app:
+
+```bash
+flask --app Contacts init-db
+flask --app Contacts run --debug
+```
 
 ---
 
@@ -54,4 +92,3 @@ While this is currently a personal project, I may open it up to contributions in
 ---
 
 Stay tuned for more updates and thank you for choosing HamPy for your ham radio tracking needs! :smile: :radio:
-
