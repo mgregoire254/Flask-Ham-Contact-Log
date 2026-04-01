@@ -5,15 +5,23 @@ import unittest
 from pathlib import Path
 
 
+PACKAGE_NAME = 'Contacts'
+
+
 def load_contacts_package():
     repo_root = Path(__file__).resolve().parents[1]
+    sys.modules.pop(PACKAGE_NAME, None)
+
     spec = importlib.util.spec_from_file_location(
-        'Contacts',
+        PACKAGE_NAME,
         repo_root / '__init__.py',
         submodule_search_locations=[str(repo_root)],
     )
+    if spec is None or spec.loader is None:
+        raise RuntimeError('Unable to load Contacts package spec for tests.')
+
     package = importlib.util.module_from_spec(spec)
-    sys.modules['Contacts'] = package
+    sys.modules[PACKAGE_NAME] = package
     spec.loader.exec_module(package)
     return package
 
@@ -23,6 +31,7 @@ class AuthContactCrudTests(unittest.TestCase):
         self.repo_root = Path(__file__).resolve().parents[1]
         self.temp_dir = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp_dir.cleanup)
+        self.addCleanup(lambda: sys.modules.pop(PACKAGE_NAME, None))
 
         contacts_package = load_contacts_package()
         self.app = contacts_package.create_app(
@@ -46,9 +55,14 @@ class AuthContactCrudTests(unittest.TestCase):
         self.client = self.app.test_client()
 
     def login(self, username='test', password='test'):
-        return self.client.post(
-            '/auth/login', data={'username': username, 'password': password}
+        response = self.client.post(
+            '/auth/login',
+            data={'username': username, 'password': password},
+            follow_redirects=False,
         )
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(response.headers['Location'], '/')
+        return response
 
     def test_register_login_logout_flow(self):
         register_response = self.client.post(
@@ -59,13 +73,7 @@ class AuthContactCrudTests(unittest.TestCase):
         self.assertEqual(register_response.status_code, 302)
         self.assertIn('/auth/login', register_response.headers['Location'])
 
-        login_response = self.client.post(
-            '/auth/login',
-            data={'username': 'new-user', 'password': 'new-password'},
-            follow_redirects=False,
-        )
-        self.assertEqual(login_response.status_code, 302)
-        self.assertEqual(login_response.headers['Location'], '/')
+        self.login(username='new-user', password='new-password')
 
         with self.client.session_transaction() as session:
             self.assertIsNotNone(session.get('user_id'))
@@ -101,12 +109,17 @@ class AuthContactCrudTests(unittest.TestCase):
         with self.app.app_context():
             from Contacts.db import get_db
 
-            row = get_db().execute(
-                "SELECT callsign, comments, author_id FROM contacts WHERE callsign = 'N0CALL'"
+            db = get_db()
+            expected_author_id = db.execute(
+                'SELECT id FROM user WHERE username = ?', ('test',)
+            ).fetchone()['id']
+            row = db.execute(
+                'SELECT callsign, comments, author_id FROM contacts WHERE callsign = ?',
+                ('N0CALL',),
             ).fetchone()
             self.assertIsNotNone(row)
             self.assertEqual(row['comments'], 'Created in test')
-            self.assertEqual(row['author_id'], 1)
+            self.assertEqual(row['author_id'], expected_author_id)
 
     def test_update_and_delete_own_contact(self):
         self.login()
@@ -133,7 +146,7 @@ class AuthContactCrudTests(unittest.TestCase):
             from Contacts.db import get_db
 
             updated = get_db().execute(
-                'SELECT callsign, comments, power FROM contacts WHERE id = 1'
+                'SELECT callsign, comments, power FROM contacts WHERE id = ?', (1,)
             ).fetchone()
             self.assertEqual(updated['callsign'], 'K1ABC-UPDATED')
             self.assertEqual(updated['comments'], 'Updated from test')
@@ -146,7 +159,7 @@ class AuthContactCrudTests(unittest.TestCase):
         with self.app.app_context():
             from Contacts.db import get_db
 
-            deleted = get_db().execute('SELECT id FROM contacts WHERE id = 1').fetchone()
+            deleted = get_db().execute('SELECT id FROM contacts WHERE id = ?', (1,)).fetchone()
             self.assertIsNone(deleted)
 
     def test_forbidden_access_on_other_users_records(self):
@@ -165,11 +178,34 @@ class AuthContactCrudTests(unittest.TestCase):
                 'self_rst': '59',
                 'contact_rst': '57',
             },
+            follow_redirects=False,
         )
         self.assertEqual(update_response.status_code, 403)
 
-        delete_response = self.client.post('/2/delete')
+        delete_response = self.client.post('/2/delete', follow_redirects=False)
         self.assertEqual(delete_response.status_code, 403)
+
+        with self.app.app_context():
+            from Contacts.db import get_db
+
+            unchanged = get_db().execute(
+                'SELECT callsign, comments FROM contacts WHERE id = ?', (2,)
+            ).fetchone()
+            self.assertEqual(unchanged['callsign'], 'W7XYZ')
+            self.assertEqual(unchanged['comments'], 'Second seeded contact')
+
+    def test_auth_required_on_crud_routes(self):
+        create_response = self.client.get('/create', follow_redirects=False)
+        self.assertEqual(create_response.status_code, 302)
+        self.assertIn('/auth/login', create_response.headers['Location'])
+
+        update_response = self.client.get('/1/update', follow_redirects=False)
+        self.assertEqual(update_response.status_code, 302)
+        self.assertIn('/auth/login', update_response.headers['Location'])
+
+        delete_response = self.client.post('/1/delete', follow_redirects=False)
+        self.assertEqual(delete_response.status_code, 302)
+        self.assertIn('/auth/login', delete_response.headers['Location'])
 
 
 if __name__ == '__main__':
