@@ -16,9 +16,20 @@ class SchemaSeedTests(unittest.TestCase):
 
             user_count = conn.execute('SELECT COUNT(*) FROM user').fetchone()[0]
             contact_count = conn.execute('SELECT COUNT(*) FROM contacts').fetchone()[0]
+            callsigns = [
+                row[0]
+                for row in conn.execute(
+                    'SELECT callsign FROM contacts ORDER BY created ASC'
+                ).fetchall()
+            ]
+            post_table = conn.execute(
+                "SELECT name FROM sqlite_master WHERE type='table' AND name='post'"
+            ).fetchone()
 
             self.assertEqual(user_count, 2)
             self.assertEqual(contact_count, 2)
+            self.assertEqual(callsigns, ['K1ABC', 'W7XYZ'])
+            self.assertIsNone(post_table)
         finally:
             conn.close()
 
