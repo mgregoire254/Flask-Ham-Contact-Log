@@ -38,6 +38,12 @@ def create_app(test_config=None):
         #load test config if there is one
         app.config.from_mapping(test_config)
 
+    env_secret_key = os.environ.get('SECRET_KEY')
+    if env_secret_key:
+        app.config['SECRET_KEY'] = env_secret_key
+
+    _validate_production_secret_key(app)
+
     #check if instance folder exists
     try:
         os.makedirs(app.instance_path)
