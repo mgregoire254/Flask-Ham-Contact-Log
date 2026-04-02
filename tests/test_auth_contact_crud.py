@@ -64,6 +64,28 @@ class AuthContactCrudTests(unittest.TestCase):
         self.assertEqual(response.headers['Location'], '/')
         return response
 
+    def get_user_id(self, username):
+        with self.app.app_context():
+            from Contacts.db import get_db
+
+            user = get_db().execute(
+                'SELECT id FROM user WHERE username = ?',
+                (username,),
+            ).fetchone()
+            self.assertIsNotNone(user)
+            return user['id']
+
+    def get_contact_id(self, callsign):
+        with self.app.app_context():
+            from Contacts.db import get_db
+
+            contact = get_db().execute(
+                'SELECT id FROM contacts WHERE callsign = ?',
+                (callsign,),
+            ).fetchone()
+            self.assertIsNotNone(contact)
+            return contact['id']
+
     def test_register_login_logout_flow(self):
         register_response = self.client.post(
             '/auth/register',
@@ -110,9 +132,7 @@ class AuthContactCrudTests(unittest.TestCase):
             from Contacts.db import get_db
 
             db = get_db()
-            expected_author_id = db.execute(
-                'SELECT id FROM user WHERE username = ?', ('test',)
-            ).fetchone()['id']
+            expected_author_id = self.get_user_id('test')
             row = db.execute(
                 'SELECT callsign, comments, author_id FROM contacts WHERE callsign = ?',
                 ('N0CALL',),
@@ -123,9 +143,10 @@ class AuthContactCrudTests(unittest.TestCase):
 
     def test_update_and_delete_own_contact(self):
         self.login()
+        own_contact_id = self.get_contact_id('K1ABC')
 
         update_response = self.client.post(
-            '/1/update',
+            f'/{own_contact_id}/update',
             data={
                 'callsign': 'K1ABC-UPDATED',
                 'comments': 'Updated from test',
@@ -146,27 +167,32 @@ class AuthContactCrudTests(unittest.TestCase):
             from Contacts.db import get_db
 
             updated = get_db().execute(
-                'SELECT callsign, comments, power FROM contacts WHERE id = ?', (1,)
+                'SELECT callsign, comments, power FROM contacts WHERE id = ?',
+                (own_contact_id,),
             ).fetchone()
             self.assertEqual(updated['callsign'], 'K1ABC-UPDATED')
             self.assertEqual(updated['comments'], 'Updated from test')
             self.assertEqual(updated['power'], 30)
 
-        delete_response = self.client.post('/1/delete', follow_redirects=False)
+        delete_response = self.client.post(f'/{own_contact_id}/delete', follow_redirects=False)
         self.assertEqual(delete_response.status_code, 302)
         self.assertEqual(delete_response.headers['Location'], '/')
 
         with self.app.app_context():
             from Contacts.db import get_db
 
-            deleted = get_db().execute('SELECT id FROM contacts WHERE id = ?', (1,)).fetchone()
+            deleted = get_db().execute(
+                'SELECT id FROM contacts WHERE id = ?',
+                (own_contact_id,),
+            ).fetchone()
             self.assertIsNone(deleted)
 
     def test_forbidden_access_on_other_users_records(self):
         self.login(username='test', password='test')
+        other_contact_id = self.get_contact_id('W7XYZ')
 
         update_response = self.client.post(
-            '/2/update',
+            f'/{other_contact_id}/update',
             data={
                 'callsign': 'NOPE',
                 'comments': 'Should not update',
@@ -182,28 +208,37 @@ class AuthContactCrudTests(unittest.TestCase):
         )
         self.assertEqual(update_response.status_code, 403)
 
-        delete_response = self.client.post('/2/delete', follow_redirects=False)
+        delete_response = self.client.post(f'/{other_contact_id}/delete', follow_redirects=False)
         self.assertEqual(delete_response.status_code, 403)
 
         with self.app.app_context():
             from Contacts.db import get_db
 
             unchanged = get_db().execute(
-                'SELECT callsign, comments FROM contacts WHERE id = ?', (2,)
+                'SELECT callsign, comments FROM contacts WHERE id = ?',
+                (other_contact_id,),
             ).fetchone()
             self.assertEqual(unchanged['callsign'], 'W7XYZ')
             self.assertEqual(unchanged['comments'], 'Second seeded contact')
 
     def test_auth_required_on_crud_routes(self):
+        own_contact_id = self.get_contact_id('K1ABC')
+
         create_response = self.client.get('/create', follow_redirects=False)
         self.assertEqual(create_response.status_code, 302)
         self.assertIn('/auth/login', create_response.headers['Location'])
 
-        update_response = self.client.get('/1/update', follow_redirects=False)
+        update_response = self.client.get(
+            f'/{own_contact_id}/update',
+            follow_redirects=False,
+        )
         self.assertEqual(update_response.status_code, 302)
         self.assertIn('/auth/login', update_response.headers['Location'])
 
-        delete_response = self.client.post('/1/delete', follow_redirects=False)
+        delete_response = self.client.post(
+            f'/{own_contact_id}/delete',
+            follow_redirects=False,
+        )
         self.assertEqual(delete_response.status_code, 302)
         self.assertIn('/auth/login', delete_response.headers['Location'])
 
