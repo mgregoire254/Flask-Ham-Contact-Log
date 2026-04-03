@@ -1,4 +1,4 @@
-include Contact/schema.sql
-graft Contact/static
-graft Contact/templates
+include schema.sql
+recursive-include static *
+recursive-include templates *
 global-exclude *.pyc
