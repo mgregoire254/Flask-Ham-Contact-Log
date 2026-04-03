@@ -9,7 +9,7 @@
     <label for="callsign">Callsign</label>
     <input name="callsign" id="callsign"value="{{ request.form['callsign'] or contact['callsign'] }}" required>
     <label for="comments">comments</label>
-    <textarea name="comments" id="comments" value="{{ request.form['comments'] or contact['comments'] }}"></textarea>
+    <textarea name="comments" id="comments">{{ request.form['comments'] or contact['comments'] }}</textarea>
     <label for="frequency">frequency</label>
     <input name="frequency" id="frequency" value="{{ request.form['frequency'] or contact['frequency'] }}">
     <label for="mode">mode</label>
