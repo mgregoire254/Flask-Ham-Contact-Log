@@ -6,7 +6,7 @@ from pathlib import Path
 class SchemaSeedTests(unittest.TestCase):
     def test_schema_and_seed_data_load(self):
         repo_root = Path(__file__).resolve().parents[1]
-        schema_sql = (repo_root / 'schema.sql').read_text(encoding='utf-8')
+        schema_sql = (repo_root / 'Contacts' / 'schema.sql').read_text(encoding='utf-8')
         seed_sql = (repo_root / 'tests' / 'data.sql').read_text(encoding='utf-8')
 
         conn = sqlite3.connect(':memory:')

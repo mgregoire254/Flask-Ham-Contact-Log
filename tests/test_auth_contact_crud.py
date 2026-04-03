@@ -1,29 +1,13 @@
-import importlib.util
-import sys
 import tempfile
 import unittest
 from pathlib import Path
 
 
-PACKAGE_NAME = 'Contacts'
-
-
 def load_contacts_package():
-    repo_root = Path(__file__).resolve().parents[1]
-    sys.modules.pop(PACKAGE_NAME, None)
+    import importlib
 
-    spec = importlib.util.spec_from_file_location(
-        PACKAGE_NAME,
-        repo_root / '__init__.py',
-        submodule_search_locations=[str(repo_root)],
-    )
-    if spec is None or spec.loader is None:
-        raise RuntimeError('Unable to load Contacts package spec for tests.')
+    return importlib.reload(importlib.import_module('Contacts'))
 
-    package = importlib.util.module_from_spec(spec)
-    sys.modules[PACKAGE_NAME] = package
-    spec.loader.exec_module(package)
-    return package
 
 
 class AuthContactCrudTests(unittest.TestCase):
@@ -31,8 +15,6 @@ class AuthContactCrudTests(unittest.TestCase):
         self.repo_root = Path(__file__).resolve().parents[1]
         self.temp_dir = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp_dir.cleanup)
-        self.addCleanup(lambda: sys.modules.pop(PACKAGE_NAME, None))
-
         contacts_package = load_contacts_package()
         self.app = contacts_package.create_app(
             {
@@ -43,7 +25,7 @@ class AuthContactCrudTests(unittest.TestCase):
         )
 
         with self.app.app_context():
-            schema_sql = (self.repo_root / 'schema.sql').read_text(encoding='utf-8')
+            schema_sql = (self.repo_root / 'Contacts' / 'schema.sql').read_text(encoding='utf-8')
             seed_sql = (self.repo_root / 'tests' / 'data.sql').read_text(encoding='utf-8')
             from Contacts.db import get_db
 

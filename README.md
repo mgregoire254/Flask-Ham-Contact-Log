@@ -1,6 +1,6 @@
 # HamPy :radio: - Ham Radio Contact Tracker
 
-![HamPy Banner](static/images/hampy_banner.png)
+![HamPy Banner](Contacts/static/images/hampy_banner.png)
 
 HamPy is a Flask web application that provides an intuitive and efficient way to track and log your ham radio contacts. Developed with care by
 **Michael Gregoire**, this tool is for ham radio enthusiasts looking to organize their contacts.
@@ -37,9 +37,10 @@ We're always looking to improve HamPy and bring more features to our users. Here
    python -m venv .venv
    source .venv/bin/activate
    ```
-2. Install project dependencies.
+2. Install project dependencies and the local package in editable mode.
    ```bash
    pip install -r requirements.txt
+   pip install -e .
    ```
 
 ### Configuration
@@ -67,12 +68,22 @@ export HAMPY_ENV=production
 export SECRET_KEY="strong-random-secret-key"
 ```
 
+### Canonical Flask app entrypoint
+
+HamPy's canonical Flask entrypoint is:
+
+```bash
+Contacts:create_app
+```
+
+Use this exact value with `flask --app ...` for all CLI commands so local development and deployment scripts stay aligned.
+
 ### Usage
 Initialize the database and run the app:
 
 ```bash
-flask --app Contacts init-db
-flask --app Contacts run --debug
+flask --app Contacts:create_app init-db
+flask --app Contacts:create_app run --debug
 ```
 
 ---

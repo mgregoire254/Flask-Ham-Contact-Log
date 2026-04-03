@@ -1,23 +1,15 @@
-import importlib.util
 import os
-import sys
 import tempfile
-import unittest
 from pathlib import Path
+import unittest
 from unittest.mock import patch
 
 
 def load_contacts_package():
-    repo_root = Path(__file__).resolve().parents[1]
-    spec = importlib.util.spec_from_file_location(
-        'Contacts',
-        repo_root / '__init__.py',
-        submodule_search_locations=[str(repo_root)],
-    )
-    package = importlib.util.module_from_spec(spec)
-    sys.modules['Contacts'] = package
-    spec.loader.exec_module(package)
-    return package
+    import importlib
+
+    return importlib.reload(importlib.import_module('Contacts'))
+
 
 
 class AppConfigTests(unittest.TestCase):
