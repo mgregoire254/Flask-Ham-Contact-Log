@@ -5,6 +5,7 @@ from werkzeug.exceptions import abort
 
 from Contacts.auth import login_required
 from Contacts.db import get_db
+from Contacts import search_service
 
 bp = Blueprint('log', __name__)
 
@@ -46,12 +47,13 @@ def create():
             flash(error)
         else:
             db = get_db()
-            db.execute(
+            cursor = db.execute(
                 'INSERT INTO contacts (callsign, comments, author_id, frequency, mode, power, self_location, contact_location, self_rst, contact_rst)'
                 ' VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
                 (callsign, comments, g.user['id'], frequency, mode, power, self_location, contact_location, self_rst, contact_rst)
             )
             db.commit()
+            search_service.sync_contact(cursor.lastrowid)
             return redirect(url_for('log.index'))
 
     return render_template('log/create.html')    
@@ -104,6 +106,7 @@ def update(id):
                 (callsign, comments, frequency, mode, power, self_location, contact_location, self_rst, contact_rst, id)
             )
             db.commit()
+            search_service.sync_contact(id)
             return redirect(url_for('log.index'))
 
     return render_template('log/update.html', contact=contact)    
@@ -116,4 +119,5 @@ def delete(id):
     db = get_db()
     db.execute('DELETE FROM contacts WHERE id = ?', (id,))
     db.commit()
+    search_service.delete_contact(id)
     return redirect(url_for('log.index'))    

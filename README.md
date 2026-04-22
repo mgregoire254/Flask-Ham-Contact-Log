@@ -21,8 +21,8 @@ HamPy is a Flask web application that provides an intuitive and efficient way to
 
 We're always looking to improve HamPy and bring more features to our users. Here's a sneak peek at what's coming:
 
-- [ ] Search functionality to find contacts quickly.
-- [ ] Ability to filter contact views.
+- [x] Search functionality to find contacts quickly.
+- [x] Ability to filter contact views.
 - [ ] Integration with mapping tools to visually plot contacts.
 - [ ] Multiple Users.
 - [ ] And much more!
@@ -52,6 +52,10 @@ HamPy uses environment variables for runtime configuration:
 - `HAMPY_ENV`  
   - Optional environment selector (`development` by default).
   - Set to `production` to enforce production safety checks.
+- `MEILISEARCH_URL`
+  - Optional URL for contact search (`http://127.0.0.1:7700` by default).
+- `MEILISEARCH_KEY` or `MEILI_MASTER_KEY`
+  - Optional key for secured Meilisearch instances.
 
 Example development configuration:
 
@@ -68,11 +72,38 @@ export SECRET_KEY="strong-random-secret-key"
 ```
 
 ### Usage
-Initialize the database and run the app:
+Start Meilisearch for fast contact search:
 
 ```bash
+docker run -it --rm \
+  -p 7700:7700 \
+  -e MEILI_ENV='development' \
+  -v $(pwd)/meili_data:/meili_data \
+  getmeili/meilisearch:v1.37
+```
+
+Build the React frontend, initialize the database, sync search, and run the app:
+
+```bash
+python -m pip install -r requirements.txt
+npm install
+npm run build
 flask --app Contacts init-db
-flask --app Contacts run --debug
+flask --app Contacts sync-search
+flask --app Contacts --debug run
+```
+
+Open `http://127.0.0.1:5000`, register a user, and start logging contacts.
+
+If Meilisearch is not running, HamPy falls back to SQLite search so development
+can continue, but Meilisearch should be running for the intended search
+experience.
+
+During frontend development, keep Flask running and rebuild the React bundle when
+you change `static/app.js` or `static/app.css`:
+
+```bash
+npm run watch
 ```
 
 ---

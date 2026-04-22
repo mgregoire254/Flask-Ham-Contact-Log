@@ -1,6 +1,6 @@
 import os
 
-from flask import Flask
+from flask import Flask, render_template
 
 
 _PRODUCTION_SECRET_KEY_ERROR = (
@@ -62,6 +62,10 @@ def create_app(test_config=None):
     except OSError:
         pass
 
+    @app.route('/')
+    def index():
+        return render_template('app.html')
+
     #placeholder page that says hello
     @app.route('/hello')
     def hello():
@@ -71,12 +75,17 @@ def create_app(test_config=None):
     from . import db
     db.init_app(app)    
 
+    from . import search_service
+    search_service.init_app(app)
+
     from . import auth
     app.register_blueprint(auth.bp)
 
+    from . import api
+    app.register_blueprint(api.bp)
+
     from . import log
     app.register_blueprint(log.bp)
-    app.add_url_rule('/', endpoint='index')
 
 
     return app    

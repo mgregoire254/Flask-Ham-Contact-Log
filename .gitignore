@@ -65,6 +65,12 @@ db.sqlite3-journal
 instance/
 .webassets-cache
 
+# Search services
+meili_data/
+
+# Frontend dependencies
+node_modules/
+
 # Scrapy stuff:
 .scrapy
 
@@ -104,6 +110,8 @@ celerybeat.pid
 # Environments
 .env
 .venv
+.venv/
+.venv312/
 env/
 venv/
 ENV/
